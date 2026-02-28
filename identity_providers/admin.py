@@ -16,7 +16,11 @@ from identity_providers.models import (
     LoginOption,
 )
 from rbac.models import RBACGroup
-from saml_auth.models import SAMLConfiguration
+try:
+    from saml_auth.models import SAMLConfiguration
+    _SAML_AVAILABLE = True
+except Exception:
+    _SAML_AVAILABLE = False
 
 
 class IdentityProviderUserLogAdmin(admin.ModelAdmin):
@@ -33,11 +37,12 @@ class IdentityProviderUserLogAdmin(admin.ModelAdmin):
     readonly_fields = ['identity_provider', 'user', 'created_at', 'logs']
 
 
-class SAMLConfigurationInline(admin.StackedInline):
-    model = SAMLConfiguration
-    extra = 0
-    can_delete = True
-    max_num = 1
+if _SAML_AVAILABLE:
+    class SAMLConfigurationInline(admin.StackedInline):
+        model = SAMLConfiguration
+        extra = 0
+        can_delete = True
+        max_num = 1
 
 
 class IdentityProviderCategoryMappingInlineForm(forms.ModelForm):
@@ -140,7 +145,7 @@ class CustomSocialAppAdmin(SocialAppAdmin):
         super().__init__(*args, **kwargs)
         self.inlines = []
 
-        if getattr(settings, 'USE_SAML', False):
+        if getattr(settings, 'USE_SAML', False) and _SAML_AVAILABLE:
             self.inlines.append(SAMLConfigurationInline)
         self.inlines.append(IdentityProviderGlobalRoleInline)
         self.inlines.append(IdentityProviderGroupRoleInline)
