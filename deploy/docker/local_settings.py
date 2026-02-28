@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "actions.apps.ActionsConfig",
     "rbac.apps.RbacConfig",
+    "identity_providers.apps.IdentityProvidersConfig",
     "mptt",
     "crispy_forms",
     "crispy_bootstrap5",
