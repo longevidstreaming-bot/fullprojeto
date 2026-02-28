@@ -27,6 +27,12 @@ if [ X"$ENABLE_MIGRATIONS" = X"yes" ]; then
 
     python manage.py collectstatic --noinput
 
+
+# Fallback: ensure static files are collected even if ENABLE_MIGRATIONS is not 'yes'
+if [ ! -d /home/mediacms.io/mediacms/static_collected ] || [ -z "$(ls -A /home/mediacms.io/mediacms/static_collected 2>/dev/null)" ]; then
+    echo "RUNNING COLLECTSTATIC (fallback)"
+    python manage.py collectstatic --noinput
+fi
     # echo "Updating hostname ..."
     # TODO: Get the FRONTEND_HOST from cms/local_settings.py
     # echo "from django.contrib.sites.models import Site; Site.objects.update(name='$FRONTEND_HOST', domain='$FRONTEND_HOST')" | python manage.py shell

@@ -104,10 +104,7 @@ RUN chmod +x ./deploy/docker/entrypoint.sh
 ENTRYPOINT ["./deploy/docker/entrypoint.sh"]
 CMD ["./deploy/docker/start.sh"]
 
-############ FULL IMAGE ############
-FROM base AS full
-COPY requirements-full.txt ./
-RUN mkdir -p /root/.cache/ && \
-    chmod go+rwx /root/ && \
-    chmod go+rwx /root/.cache/
-RUN uv pip install -r requirements-full.txt
+############ FINAL RUNTIME IMAGE (base only) ############
+# Use the base image as the final image to keep build lightweight on free tiers
+# The 'full' image with Whisper/Torch is intentionally disabled for Render Free
+# If you need full features, re-enable the final stage to be 'full'
