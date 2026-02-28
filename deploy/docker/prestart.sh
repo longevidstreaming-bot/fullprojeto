@@ -5,14 +5,15 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-$RANDOM_ADMIN_PASS}
 
 if [ X"$ENABLE_MIGRATIONS" = X"yes" ]; then
     echo "Running migrations service"
-    python manage.py migrate
-    EXISTING_INSTALLATION=`echo "from users.models import User; print(User.objects.exists())" |python manage.py shell`
+    # Don't fail the whole deploy if migrate or shell checks error
+    python manage.py migrate || echo "migrate failed, continuing startup"
+    EXISTING_INSTALLATION=`echo "from users.models import User; print(User.objects.exists())" | python manage.py shell 2>/dev/null` || EXISTING_INSTALLATION="False"
     if [ "$EXISTING_INSTALLATION" = "True" ]; then
         echo "Loaddata has already run"
     else
         echo "Running loaddata and creating admin user"
-        python manage.py loaddata fixtures/encoding_profiles.json
-        python manage.py loaddata fixtures/categories.json
+        python manage.py loaddata fixtures/encoding_profiles.json || echo "loaddata encoding_profiles failed"
+        python manage.py loaddata fixtures/categories.json || echo "loaddata categories failed"
 
     	# post_save, needs redis to succeed (ie. migrate depends on redis)
         DJANGO_SUPERUSER_PASSWORD=$ADMIN_PASSWORD python manage.py createsuperuser \
